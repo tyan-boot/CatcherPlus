@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("CatcherPlus")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("抓取评论")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("TyanBoot")]
 [assembly: AssemblyProduct("CatcherPlus")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
