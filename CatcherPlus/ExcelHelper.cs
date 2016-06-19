@@ -14,9 +14,6 @@ using System.IO;
 
 namespace CatcherPlus
 {
-    //部分代码参考于 <优途科技>
-    //http://blog.csdn.net/gisfarmer/article/details/3738959/
-
     class ExcelHelper
     {
         
@@ -36,13 +33,38 @@ namespace CatcherPlus
         private void InitExcel()
         {
             sheet1 = wbook.CreateSheet("评论");
-            /*
-            app = new Microsoft.Office.Interop.Excel.Application();
-            app.Visible = false;
-            this.wBook = app.Workbooks.Add(true);
-            this.wSheet = wBook.Worksheets[1];*/
+            List<string> title = new List<string>();
+            foreach (var str in MainWin.Columns)
+            {
+                title.Add(str);
+            }
+
+            this.SetTitle(title);
         }
 
+        public bool AddRow(Common.Cmt rowData)
+        {
+            //int col = 0;
+            IRow row = sheet1.CreateRow(currentRow);
+
+            row.CreateCell(0).SetCellValue(rowData.name);
+            row.CreateCell(1).SetCellValue(rowData.date);
+            row.CreateCell(2).SetCellValue(rowData.location);
+            row.CreateCell(3).SetCellValue(rowData.up);
+            row.CreateCell(4).SetCellValue(rowData.content);
+            
+            currentRow++;
+            /*
+            foreach (var str in rowdata)
+            {
+                row.CreateCell(col).SetCellValue(str);
+                col++;
+            }
+            currentRow++;*/
+            return true;
+        }
+
+        /*
         public bool AddRow(List<string> rowdata)
         {
             int col = 0;
@@ -50,13 +72,12 @@ namespace CatcherPlus
             foreach (var str in rowdata)
             {
                 row.CreateCell(col).SetCellValue(str);
-                //this.wSheet.Cells[this.currentRow + 1, col + 1] = str;
                 col++;
             }
             currentRow++;
             return true;
         }
-
+        */
         public void SetTitle(List<string> title)
         {
             row = sheet1.CreateRow(0);
@@ -65,7 +86,6 @@ namespace CatcherPlus
             foreach (var str in title)
             {
                 row.CreateCell(col).SetCellValue(str);
-                //this.wSheet.Cells[1, col+1] = str;
                 col++;
             }
 
@@ -79,19 +99,10 @@ namespace CatcherPlus
                 FileStream stream = File.OpenWrite(FileName);
                 wbook.Write(stream);
                 stream.Close();
-                /*
-                this.app.DisplayAlerts = false;
-                app.AlertBeforeOverwriting = false;
-                wBook.Save();
-                app.Save("test.xlsx");
-                app.SaveWorkspace("test.xlsx");
-                app.Quit();
-                app = null;*/
             }catch (Exception err)
             {
                 MessageBox.Show("导出Excel出错！错误原因：" + err.Message, "提示信息",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
-                //return false;
             }
 
         }

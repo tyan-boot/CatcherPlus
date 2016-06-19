@@ -59,7 +59,8 @@ namespace CatcherPlus
 
         private string BaseCmtUrl;
         private Dictionary<string, int> QQParm = new Dictionary<string, int>();
-        private List<QQCmtSimple> QQCmts = new List<QQCmtSimple>();
+        //private List<QQCmtSimple> QQCmts = new List<QQCmtSimple>();
+        private List<Common.Cmt> QQCmts = new List<Common.Cmt>();
 
         private int reqnum = 50;
         //private string commentid;
@@ -104,7 +105,7 @@ namespace CatcherPlus
             //Console.WriteLine(htmldata);
             return true;
         }
-        public List<QQCmtSimple> GetAllCmts()
+        public List<Common.Cmt> GetAllCmts()
         {
             return QQCmts;
         }
@@ -120,11 +121,11 @@ namespace CatcherPlus
             return parm;
         }
 
-        public List<QQCmtSimple> GetNextCmts()
+        public List<Common.Cmt> GetNextCmts()
         {
             if (this.hasnext)
             {
-                List<QQCmtSimple> lcmts = new List<QQCmtSimple>();
+                List<Common.Cmt> lcmts = new List<Common.Cmt>();
 
                 string CmtUrl = BaseCmtUrl + GetParm();
                 string htmldata = HttpHelper.GetHtml(CmtUrl, "application/json");
@@ -138,7 +139,7 @@ namespace CatcherPlus
                 {
                     if (cmt.parent == "0")
                     {
-                        QQCmtSimple qcmt = new QQCmtSimple();
+                        Common.Cmt qcmt = new Common.Cmt();
                         qcmt.name = cmt.userinfo.nick;
                         qcmt.date = GetTime(cmt.time.ToString()).ToString();       //这TM是时间戳
                         qcmt.location = cmt.userinfo.region;
@@ -158,7 +159,8 @@ namespace CatcherPlus
         {
             DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
             long lTime = long.Parse(timeStamp + "0000000");
-            TimeSpan toNow = new TimeSpan(lTime); return dtStart.Add(toNow);
+            TimeSpan toNow = new TimeSpan(lTime);
+            return dtStart.Add(toNow);
         }
     }
 }

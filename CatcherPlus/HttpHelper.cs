@@ -9,7 +9,7 @@ using System.Windows.Forms;
 namespace CatcherPlus
 {
 
-    class PostText
+    class HttpParm
     {
         private string PostField = "";
         private int num = 0;
@@ -22,6 +22,7 @@ namespace CatcherPlus
             }else
             {
                 PostField += key + "=" + content;
+                num++;
             }
         }
 
@@ -41,6 +42,7 @@ namespace CatcherPlus
             {
                 HttpWebRequest wReq = (HttpWebRequest)WebRequest.Create(Url);
 
+                wReq.AllowAutoRedirect = false;
                 wReq.ContentType = ContentType;
                 wReq.Method = "GET";
 
@@ -55,16 +57,16 @@ namespace CatcherPlus
                 return HtmlContent;
 
             }
-            catch (Exception err)
+            catch
             {
                 //Console.WriteLine(err);
-                throw err;
+                throw;
             }
 
             //return null;
         }
 
-        public static string PostTo(string Url, PostText pt)
+        public static string PostTo(string Url, HttpParm pt)
         {
             try
             {
@@ -90,10 +92,10 @@ namespace CatcherPlus
                 string rtn = sr.ReadToEnd();
                 return rtn;
             }
-            catch(Exception err)
+            catch
             {
                 //Console.WriteLine(err.Message);
-                throw err;
+                throw;
                 //return null;
             }
             

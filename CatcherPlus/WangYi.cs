@@ -81,7 +81,8 @@ namespace WangYi
         private string NewsUrl;
         //private WangYiData wyData;
         //private WYCommentSimple[] WYCmts;
-        private List<WYCommentSimple> WYCmts = new List<WYCommentSimple>();
+        //private List<WYCommentSimple> WYCmts = new List<WYCommentSimple>();
+        private List<Common.Cmt> WYCmts = new List<Common.Cmt>();
 
         //private MainWin mw;
 
@@ -93,10 +94,11 @@ namespace WangYi
             Init();
         }
 
-        public List<WYCommentSimple> GetAllData()
+        public List<Common.Cmt> GetAllCmts()
         {
             return WYCmts;
         }
+
         private string GetCmtUrl()
         {
             return "http://comment.news.163.com/api/v1/products/" + productKey + "/threads/" + docId + "/comments/newList?offset=0&limit=1";
@@ -144,9 +146,9 @@ namespace WangYi
             return true;
         }
 
-        public List<WYCommentSimple> GetNextCmtList()
+        public List<Common.Cmt> GetNextCmts()
         {
-            List<WYCommentSimple> lwys = new List<WYCommentSimple>();
+            List<Common.Cmt> lwys = new List<Common.Cmt>();
             string Url = GetNextCmtUrl();
 
             string RawJsonData = HttpHelper.GetHtml(Url, "application/json");
@@ -157,18 +159,19 @@ namespace WangYi
             {
                 if (cmt.Value.buildLevel == 1)
                 {
-                    WYCommentSimple wys = new WYCommentSimple();
-                    wys.against = cmt.Value.against;
-                    wys.against = cmt.Value.against;
-                    wys.anonymous = cmt.Value.anonymous;
-                    wys.buildLevel = cmt.Value.buildLevel;
+                    Common.Cmt wys = new Common.Cmt();
+                    //wys.up = cmt.Value.against;
+                    //wys.against = cmt.Value.against;
+                    //wys.anonymous = cmt.Value.anonymous;
+                    //wys.buildLevel = cmt.Value.buildLevel;
                     wys.content = cmt.Value.content;
 
-                    wys.createTime = cmt.Value.createTime;
-                    wys.favCount = cmt.Value.favCount;
+                    wys.date = cmt.Value.createTime;
+                    
                     wys.location = cmt.Value.user.location;
-                    wys.nickname = cmt.Value.user.nickname;
-                    wys.vote = cmt.Value.vote;
+                    wys.name = cmt.Value.user.nickname;
+                    wys.up = cmt.Value.vote.ToString();
+
                     lwys.Add(wys);
                     WYCmts.Add(wys);
                 }

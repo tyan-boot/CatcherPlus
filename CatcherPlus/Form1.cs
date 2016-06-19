@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 
 using System.Threading;
+using System.Reflection;
+using System.IO;
 
 namespace CatcherPlus
 {
@@ -20,8 +22,8 @@ namespace CatcherPlus
 
             var sitetypes = sitetype.Items;
             sitetypes.AddRange(new object[] {
-                //"凤凰",
-                //"搜狐",
+                "凤凰",
+                "搜狐",
                 "腾讯",
                 "网易",
                 "新浪"
@@ -29,7 +31,6 @@ namespace CatcherPlus
 
             //sitetypes.
             sitetype.SelectedIndex = 0;
-
         }
 
         private bool CatchLocker = false;
@@ -44,9 +45,7 @@ namespace CatcherPlus
             ifeng = 4
         };
 
-        private string[] WYColumns = { "Name", "Date", "Location", "Vote", "Content" };
-        private string[] QQColumns = { "Name", "Date", "Location", "Content", "Up" };
-        private string[] SinaColumns = { "Name", "Date", "Area", "Content", "Agree" };
+        public static string[] Columns = { "Name", "Date", "Location", "Up", "Content" };
 
         public string f = "完成";
         public string s = "正在抓取";
@@ -57,38 +56,14 @@ namespace CatcherPlus
             stateText.Text = s;
         }
 
-        private void InitPreViewBox(SiteType site)
+        private void InitPreViewBox()
         {
-            switch (site)
+            PreViewBox.Columns.Clear();
+            PreViewBox.Items.Clear();
+            foreach (var str in Columns)
             {
-                case SiteType.WangYi:
-                    PreViewBox.Columns.Clear();
-                    PreViewBox.Items.Clear();
-                    foreach (var str in WYColumns)
-                    {
-                        PreViewBox.Columns.Add(str);
-                    }
-                    break;
-
-                case SiteType.Tencent:
-                    PreViewBox.Columns.Clear();
-                    PreViewBox.Items.Clear();
-                    foreach (var str in QQColumns)
-                    {
-                        PreViewBox.Columns.Add(str);
-                    }
-                    break;
-
-                case SiteType.Sina:
-                    PreViewBox.Columns.Clear();
-                    PreViewBox.Items.Clear();
-                    foreach (var str in SinaColumns)
-                    {
-                        PreViewBox.Columns.Add(str);
-                    }
-                    break;
+                PreViewBox.Columns.Add(str);
             }
-            
         }
 
         delegate void dSetPB(int min, int max);
@@ -121,26 +96,114 @@ namespace CatcherPlus
             progressBar2.Value++;
         }
 
-        delegate void dAddPVB(List<string> data);
+        delegate void dAddPVB(Common.Cmt data);
 
-        public void AddPVB(List<string> data)
+        public void AddPVB(Common.Cmt data)
         {
-            int i = 0;
+            //int i = 0;
             PreViewBox.BeginUpdate();
             ListViewItem lvi = new ListViewItem();
-            lvi.Text = data[0];
-            
-            foreach (var sd in data)
-            {
-                if (i == 0)
-                {
-                    ++i;
-                    continue;
-                }
-                lvi.SubItems.Add(sd);
-            }
+            lvi.Text = data.name;
+            lvi.SubItems.Add(data.date);
+            lvi.SubItems.Add(data.location);
+            lvi.SubItems.Add(data.up);
+            lvi.SubItems.Add(data.content);
+
             PreViewBox.Items.Add(lvi);
             PreViewBox.EndUpdate();
+        }
+        public void Startifeng()
+        {
+            this.CatchLocker = true;
+            try
+            {
+                ifeng fn = new ifeng(Url.Text);
+
+                this.BeginInvoke(new dState(State), s);
+                string URL = Url.Text;
+                string file = FileName.Text;
+                ExcelHelper eh = new ExcelHelper(file);
+                int num = fn.GetNum();
+
+                
+                this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
+                var cmts = fn.GetNextCmts();
+
+                while (cmts != null)
+                {
+                    foreach (var cmt in cmts)
+                    {
+                        this.BeginInvoke(new dAddPVB(AddPVB), cmt);
+                        this.BeginInvoke(new dAddPB1(AddProgressBar1));
+                    }
+                    cmts = fn.GetNextCmts();
+                }
+
+                var allcmts = fn.GetAllCmts();
+                foreach (var cmt in allcmts)
+                {
+                    eh.AddRow(cmt);
+                    this.BeginInvoke(new dAddPB2(AddProgressBar2));
+                }
+                eh.Save();
+                this.BeginInvoke(new dState(State), f);
+                MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show("出错！错误原因：" + err.Message, "提示信息",
+                   MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CatchLocker = false;
+            }
+            this.CatchLocker = false;
+        }
+        public void StartSoHu()
+        {
+            this.CatchLocker = true;
+            try
+            {
+                SoHu sh = new SoHu(Url.Text);
+
+                this.BeginInvoke(new dState(State), s);
+                string URL = Url.Text;
+                string file = FileName.Text;
+                ExcelHelper eh = new ExcelHelper(file);
+                int num = sh.GetNum();
+
+                
+                this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
+                var cmts = sh.GetNextCmts();
+
+                while (cmts != null)
+                {
+                    foreach (var cmt in cmts)
+                    {
+                        this.BeginInvoke(new dAddPVB(AddPVB), cmt);
+                        this.BeginInvoke(new dAddPB1(AddProgressBar1));
+                    }
+                    cmts = sh.GetNextCmts();
+                }
+
+                var allcmts = sh.GetAllCmts();
+                foreach (var cmt in allcmts)
+                {
+                    eh.AddRow(cmt);
+                    this.BeginInvoke(new dAddPB2(AddProgressBar2));
+                }
+                eh.Save();
+                this.BeginInvoke(new dState(State), f);
+                MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show("出错！错误原因：" + err.Message, "提示信息",
+                   MessageBoxButtons.OK, MessageBoxIcon.Information);
+                CatchLocker = false;
+            }
+            this.CatchLocker = false;
         }
 
         public void StartSina()
@@ -150,16 +213,9 @@ namespace CatcherPlus
             {
                 Sina sina = new Sina(Url.Text);
 
-                string URL = Url.Text;
+                //string URL = Url.Text;
                 string file = FileName.Text;
                 ExcelHelper eh = new ExcelHelper(file);
-                List<string> title = new List<string>();
-                foreach (var str in SinaColumns)
-                {
-                    title.Add(str);
-                }
-
-                eh.SetTitle(title);
 
                 var num = sina.GetNum();
                 this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
@@ -170,14 +226,7 @@ namespace CatcherPlus
                 {
                     foreach (var cmt in cmts)
                     {
-                        List<string> scmt = new List<string>();
-
-                        scmt.Add(cmt.name);
-                        scmt.Add(cmt.date);
-                        scmt.Add(cmt.area);
-                        scmt.Add(cmt.content);
-                        scmt.Add(cmt.agree);
-                        this.BeginInvoke(new dAddPVB(AddPVB), scmt);
+                        this.BeginInvoke(new dAddPVB(AddPVB), cmt);
                         this.BeginInvoke(new dAddPB1(AddProgressBar1));
 
                         //if (stop) break;
@@ -192,14 +241,7 @@ namespace CatcherPlus
                 var allcmts = sina.GetAllCmts();
                 foreach (var cmt in allcmts)
                 {
-                    List<string> scmt = new List<string>();
-
-                    scmt.Add(cmt.name);
-                    scmt.Add(cmt.date);
-                    scmt.Add(cmt.area);
-                    scmt.Add(cmt.content);
-                    scmt.Add(cmt.agree);
-                    eh.AddRow(scmt);
+                    eh.AddRow(cmt);
                     this.BeginInvoke(new dAddPB2(AddProgressBar2));
                 }
 
@@ -230,14 +272,7 @@ namespace CatcherPlus
                 string URL = Url.Text;
                 string file = FileName.Text;
                 ExcelHelper eh = new ExcelHelper(file);
-                List<string> title = new List<string>();
-                foreach (var str in QQColumns)
-                {
-                    title.Add(str);
-                }
-
-                eh.SetTitle(title);
-
+                
                 int num = qq.GetNum();
                 this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
                 var cmts = qq.GetNextCmts();
@@ -246,14 +281,7 @@ namespace CatcherPlus
                 {
                     foreach (var cmt in cmts)
                     {
-                        List<string> scmt = new List<string>();
-
-                        scmt.Add(cmt.name);
-                        scmt.Add(cmt.date);
-                        scmt.Add(cmt.location);
-                        scmt.Add(cmt.content);
-                        scmt.Add(cmt.up);
-                        this.BeginInvoke(new dAddPVB(AddPVB), scmt);
+                        this.BeginInvoke(new dAddPVB(AddPVB), cmt);
                         this.BeginInvoke(new dAddPB1(AddProgressBar1));
 
                         //if (stop) break;
@@ -266,14 +294,7 @@ namespace CatcherPlus
                 var allcmts = qq.GetAllCmts();
                 foreach (var cmt in allcmts)
                 {
-                    List<string> scmt = new List<string>();
-
-                    scmt.Add(cmt.name);
-                    scmt.Add(cmt.date);
-                    scmt.Add(cmt.location);
-                    scmt.Add(cmt.content);
-                    scmt.Add(cmt.up);
-                    eh.AddRow(scmt);
+                    eh.AddRow(cmt);
                     this.BeginInvoke(new dAddPB2(AddProgressBar2));
                 }
                 eh.Save();
@@ -300,14 +321,6 @@ namespace CatcherPlus
                 string file = FileName.Text;
                 WangYi.WangYi wy = new WangYi.WangYi(URL);
                 ExcelHelper eh = new ExcelHelper(file);
-                List<string> title = new List<string>();
-                //Set Title
-                foreach (var str in WYColumns)
-                {
-                    title.Add(str);
-                }
-
-                eh.SetTitle(title);
 
                 int num = wy.num;
                 int round = wy.round;
@@ -315,35 +328,20 @@ namespace CatcherPlus
                 this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
                 for (int i = 0; i < round; ++i)
                 {
-                    var cmtlist = wy.GetNextCmtList();
+                    var cmtlist = wy.GetNextCmts();
 
                     foreach (var cmt in cmtlist)
                     {
-                        List<string> scmt = new List<string>();
-
-                        scmt.Add(cmt.nickname);
-                        scmt.Add(cmt.createTime);
-                        scmt.Add(cmt.location);
-                        scmt.Add(cmt.vote.ToString());
-                        scmt.Add(cmt.content);
-                        this.BeginInvoke(new dAddPVB(AddPVB), scmt);
+                        this.BeginInvoke(new dAddPVB(AddPVB), cmt);
                         this.BeginInvoke(new dAddPB1(AddProgressBar1));
                     }
                 }
 
-                var AllCmts = wy.GetAllData();
+                var AllCmts = wy.GetAllCmts();
 
                 foreach (var cmt in AllCmts)
                 {
-                    List<string> scmt = new List<string>();
-
-                    scmt.Add(cmt.nickname);
-                    scmt.Add(cmt.createTime);
-                    scmt.Add(cmt.location);
-                    scmt.Add(cmt.vote.ToString());
-                    scmt.Add(cmt.content);
-                    //Console.WriteLine(cmt.nickname);
-                    eh.AddRow(scmt);
+                    eh.AddRow(cmt);
                     this.BeginInvoke(new dAddPB2(AddProgressBar2));
                 }
 
@@ -361,6 +359,7 @@ namespace CatcherPlus
             }
             this.CatchLocker = false;
         }
+
         private void clearUrl_Click(object sender, EventArgs e)
         {
             Url.Text = "";
@@ -390,36 +389,35 @@ namespace CatcherPlus
                         progressBar2.Value = 0;
                         try
                         {
+                            InitPreViewBox();
+
                             var site = sitetype.SelectedItem.ToString();
                             switch (site)
                             {
                                 case "网易":
-                                    InitPreViewBox(SiteType.WangYi);
                                     Thread tWY = new Thread(StartWY);
                                     tWY.Start();
                                     break;
                                 case "搜狐":
-                                    InitPreViewBox(SiteType.SoHu);
-                                    Thread tSH = new Thread(StartSina);
+                                    Thread tSH = new Thread(StartSoHu);
+                                    tSH.Start();
                                     break;
                                 case "新浪":
-                                    InitPreViewBox(SiteType.Sina);
                                     Thread tSA = new Thread(StartSina);
                                     tSA.Start();
                                     break;
                                 case "腾讯":
-                                    InitPreViewBox(SiteType.Tencent);
                                     Thread tQQ = new Thread(StartQQ);
                                     tQQ.Start();
                                     break;
                                 case "凤凰":
-                                    InitPreViewBox(SiteType.ifeng);
-                                    Thread tFN = new Thread(StartSina);
+                                    Thread tFN = new Thread(Startifeng);
+                                    tFN.Start();
                                     break;
                                 default:
                                     MessageBox.Show("未知类型", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                     break;
-
+                                    
                             }
                         }catch(Exception err)
                         {
@@ -429,7 +427,6 @@ namespace CatcherPlus
                         State("GetHtml...");
                     }
                 }
-                //State("完成");
             }else
             {
                 MessageBox.Show("当前正在执行任务,请稍后再试", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);

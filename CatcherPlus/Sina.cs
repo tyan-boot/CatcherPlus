@@ -57,7 +57,8 @@ namespace CatcherPlus
         private int num;
         private int page;
 
-        private List<SinaCmtSimple> SinaCmts = new List<SinaCmtSimple>();
+        //private List<SinaCmtSimple> SinaCmts = new List<SinaCmtSimple>();
+        private List<Common.Cmt> SinaCmts = new List<Common.Cmt>();
 
         public Sina(string Url)
         {
@@ -103,7 +104,7 @@ namespace CatcherPlus
             return true;
         }
 
-        public List<SinaCmtSimple> GetAllCmts()
+        public List<Common.Cmt> GetAllCmts()
         {
             return SinaCmts;
         }
@@ -113,7 +114,7 @@ namespace CatcherPlus
             return num;
         }
         
-        public List<SinaCmtSimple> GetNextCmts()
+        public List<Common.Cmt> GetNextCmts()
         {
             SinaParm["page"] = this.page.ToString();
             string cmturl = BaseCmtUrl + HttpHelper.arry2urlencoded(SinaParm);
@@ -130,11 +131,11 @@ namespace CatcherPlus
 
             if (jc.result.cmntlist.Count != 0)
             {
-                List<SinaCmtSimple> lscs = new List<SinaCmtSimple>();
+                List<Common.Cmt> lscs = new List<Common.Cmt>();
 
                 foreach (var cmt in jc.result.cmntlist)
                 {
-                    SinaCmtSimple scs = new SinaCmtSimple();
+                    Common.Cmt scs = new Common.Cmt();
                     Match mName = reName.Match(cmt.config);
                     if (mName.Success)
                         scs.name = mName.Groups[1].Value;
@@ -142,8 +143,8 @@ namespace CatcherPlus
 
                     scs.date = cmt.time;
                     scs.content = cmt.content;
-                    scs.agree = cmt.agree;
-                    scs.area = cmt.area;
+                    scs.up = cmt.agree;
+                    scs.location = cmt.area;
                     lscs.Add(scs);
                     SinaCmts.Add(scs);
                 }
