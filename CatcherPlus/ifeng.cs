@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using System.Windows.Forms;
 
 namespace CatcherPlus
 {
@@ -25,19 +26,25 @@ namespace CatcherPlus
         private string CmtUrl = "http://comment.ifeng.com/get.php?orderby=DESC&format=json&job=1&pageSize=20&";
 
         private int page = 1;
-        //private HttpParm pt = new HttpParm();
+
         private Dictionary<string, string> FNParm = new Dictionary<string, string>();
 
         private string Url;
         private int num;
         private int round;
         private int currentRound = 0;
+        private string file;
 
         private List<Common.Cmt> Cmts = new List<Common.Cmt>();
 
-        public ifeng(string Url)
+        private MainWin mw;
+        private ExcelHelper eh;
+
+        public ifeng(string Url,string file,MainWin mw)
         {
             this.Url = Url;
+            this.file = file;
+            this.mw = mw;
 
             FNParm.Add("p", page.ToString());
             FNParm.Add("docurl", Url);
@@ -47,14 +54,11 @@ namespace CatcherPlus
 
         private void Init()
         {
- 
-            //Console.WriteLine(url);
             string htmldata = HttpHelper.GetHtml(CmtUrl + HttpHelper.arry2urlencoded(FNParm),"application/json");
             var jc = JsonConvert.DeserializeObject<FNJson>(htmldata);
             num = jc.count;
             round = num / 20;
             round++;
-            Console.WriteLine("1");
         }
 
         public List<Common.Cmt> GetNextCmts()
@@ -80,6 +84,7 @@ namespace CatcherPlus
             }
 
             currentRound++;
+            page++;
             return cmts;
         }
 
@@ -99,6 +104,35 @@ namespace CatcherPlus
             long lTime = long.Parse(timeStamp + "0000000");
             TimeSpan toNow = new TimeSpan(lTime);
             return dtStart.Add(toNow);
+        }
+
+        public void Run()
+        {
+            mw.State("正在抓取");
+            eh = new ExcelHelper(file);
+
+            mw.SetProgressBar( 0, num );
+
+            var cmts = this.GetNextCmts();
+
+            while (cmts != null)
+            {
+                foreach (var cmt in cmts)
+                {
+                    mw.AddPVB(cmt);
+                    mw.AddProgressBar1();
+                }
+                cmts = this.GetNextCmts();
+            }
+
+            foreach (var cmt in Cmts)
+            {
+                eh.AddRow(cmt);
+                mw.AddProgressBar2();
+            }
+            eh.Save();
+            mw.State("完成");
+            MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

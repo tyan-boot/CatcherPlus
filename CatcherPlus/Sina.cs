@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace CatcherPlus
 {
@@ -56,13 +58,20 @@ namespace CatcherPlus
         private string BaseCmtUrl = "http://comment5.news.sina.com.cn/page/info?";
         private int num;
         private int page;
+        private string file;
 
         //private List<SinaCmtSimple> SinaCmts = new List<SinaCmtSimple>();
         private List<Common.Cmt> SinaCmts = new List<Common.Cmt>();
 
-        public Sina(string Url)
+        private MainWin mw;
+        private ExcelHelper eh;
+
+        public Sina(string Url,string file,MainWin mw)
         {
             this.Url = Url;
+            this.mw = mw;
+            this.file = file;
+
             page = 1;
             Init();
         }
@@ -70,7 +79,7 @@ namespace CatcherPlus
         private bool Init()
         {
             string htmldata = HttpHelper.GetHtml(Url, "application/text");
-            if (htmldata != null) return false;
+            if (htmldata == null) return false;
 
             Match mChannel = reChannel.Match(htmldata);
             Match mId = reId.Match(htmldata);
@@ -104,16 +113,6 @@ namespace CatcherPlus
             return true;
         }
 
-        public List<Common.Cmt> GetAllCmts()
-        {
-            return SinaCmts;
-        }
-
-        public int GetNum()
-        {
-            return num;
-        }
-        
         public List<Common.Cmt> GetNextCmts()
         {
             SinaParm["page"] = this.page.ToString();
@@ -153,6 +152,43 @@ namespace CatcherPlus
             }
             else return null;
             //return null;
+        }
+
+        public bool Run()
+        {
+            Thread.Sleep(2000);
+            this.eh = new ExcelHelper(file);
+            mw.SetProgressBar(0, num);
+            //this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
+            
+            var cmts = this.GetNextCmts();
+            
+            while (cmts != null)
+            {
+                foreach (var cmt in cmts)
+                {
+                    mw.AddPVB(cmt);
+                    mw.AddProgressBar1();
+                    //if (stop) break;
+                }
+                Thread.Sleep(1000);
+                //if (stop) break;
+                cmts = this.GetNextCmts();
+                //Thread.Sleep(500);
+            }
+
+            
+            foreach (var cmt in SinaCmts)
+            {
+                eh.AddRow(cmt);
+                mw.AddProgressBar2();
+            }
+
+            eh.Save();
+            mw.State("完成");
+            MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
+            return true;
         }
 
     }

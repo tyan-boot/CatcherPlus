@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using System.Windows.Forms;
 
 namespace CatcherPlus
 {
@@ -23,6 +24,10 @@ namespace CatcherPlus
     }
     public class Cmt
     {
+        public string id;
+        public long targetid;
+        public string orireplynum;
+
         public string rootid;
         public string parent;
         public long time;
@@ -39,13 +44,9 @@ namespace CatcherPlus
         public string region;
     }
 
-    public class QQCmtSimple
+    public class QQCmtWithNode : Common.Cmt
     {
-        public string name;
-        public string date;
-        public string location;
-        public string content;
-        public string up;
+        public List<Common.Cmt> replys = new List<Common.Cmt> ();
     }
 
     public class Tencent
@@ -56,23 +57,34 @@ namespace CatcherPlus
         private string NewID;
         private int total;
         private bool hasnext;
-
+        private string file;
         private string BaseCmtUrl;
+        private string NodeUrl;
+
         private Dictionary<string, int> QQParm = new Dictionary<string, int>();
-        //private List<QQCmtSimple> QQCmts = new List<QQCmtSimple>();
+        private Dictionary<string, string> NodeParm = new Dictionary<string, string>();
+
         private List<Common.Cmt> QQCmts = new List<Common.Cmt>();
 
         private int reqnum = 50;
-        //private string commentid;
-        private string first;
-        //private string last;
+        private string first = "";
 
-        public Tencent(string Url)
+        private MainWin mw;
+        private ExcelHelper eh;
+
+        public Tencent(string Url,string file,MainWin mw)
         {
             this.Url = Url;
+            this.file = file;
+            this.mw = mw;
 
             QQParm.Add("commentid", 0);
             QQParm.Add("reqnum", 0);
+
+            NodeParm.Add("targetid", "");
+            NodeParm.Add("reqnum", "20");
+            NodeParm.Add("pageflag", "1");
+            NodeParm.Add("parentid", "");
 
             if (!Init())
                 throw new Exception("获取数据失败!");
@@ -89,10 +101,10 @@ namespace CatcherPlus
             else return false;
 
             BaseCmtUrl = "http://coral.qq.com/article/" + NewID + "/comment?";
+            NodeUrl = "http://coral.qq.com/comment/reply/node?";
 
             QQParm["reqnum"] = 1;
             string CmtUrl = BaseCmtUrl + HttpHelper.arry2urlencoded(QQParm);
-            //Console.WriteLine(CmtUrl);
 
             string htmldata = HttpHelper.GetHtml(CmtUrl, "application/json");
             if (htmldata == null) return false;
@@ -100,25 +112,20 @@ namespace CatcherPlus
 
             this.total = jc.data.total;
             this.hasnext = jc.data.hasnext;
-            this.first = jc.data.first;
-
-            //Console.WriteLine(htmldata);
             return true;
         }
-        public List<Common.Cmt> GetAllCmts()
-        {
-            return QQCmts;
-        }
-
-        public int GetNum()
-        {
-            return total;
-        }
-
+        
         private string GetParm()
         {
             string parm = "commentid=" + this.first + "&reqnum=" + this.reqnum.ToString();
             return parm;
+        }
+
+        public List<Common.Cmt> GetNodeCmts(string parent)
+        {
+            List<Common.Cmt> nodecmts = new List<Common.Cmt>();
+
+            return nodecmts;
         }
 
         public List<Common.Cmt> GetNextCmts()
@@ -161,6 +168,38 @@ namespace CatcherPlus
             long lTime = long.Parse(timeStamp + "0000000");
             TimeSpan toNow = new TimeSpan(lTime);
             return dtStart.Add(toNow);
+        }
+
+        public void Run()
+        {
+            mw.State("正在抓取");
+            eh = new ExcelHelper(file);
+
+            mw.SetProgressBar(0, total);
+
+            var cmts = this.GetNextCmts();
+
+            while (cmts != null)
+            {
+                foreach (var cmt in cmts)
+                {
+                    mw.AddPVB(cmt);
+                    mw.AddProgressBar1();
+
+                    //if (stop) break;
+                }
+                //Thread.Sleep(500);
+                //if (stop) break;
+                cmts = this.GetNextCmts();
+            }
+            foreach (var cmt in QQCmts)
+            {
+                eh.AddRow(cmt);
+                mw.AddProgressBar2();
+            }
+            eh.Save();
+            mw.State("完成");
+            MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

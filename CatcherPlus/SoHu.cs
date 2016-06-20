@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using System.Windows.Forms;
+using System.Threading;
 
 namespace CatcherPlus
 {
@@ -19,7 +21,7 @@ namespace CatcherPlus
     }
     class ListData
     {
-        public int cmt_num;
+        public int cmt_sum;
         public long topic_id;
     }
 
@@ -52,14 +54,20 @@ namespace CatcherPlus
         private int page = 1;
         private int round = 0;
         private int currendRound = 0;
+        private string file;
 
         private Dictionary<string, string> SHParm = new Dictionary<string, string>();
         private Dictionary<string, string> CmtParm = new Dictionary<string, string>();
-        private List<Common.Cmt> cmts = new List<Common.Cmt>();
+        private List<Common.Cmt> SHCmts = new List<Common.Cmt>();
+        private MainWin mw;
+        private ExcelHelper eh = null;
 
-        public SoHu(string Url)
+        public SoHu(string Url,string file,MainWin mw)
         {
             this.Url = Url;
+            this.file = file;
+            this.mw = mw;
+
             SHParm.Add("appid","");
             SHParm.Add("client_id", "");
             SHParm.Add("topicurl", "");
@@ -101,7 +109,7 @@ namespace CatcherPlus
             htmldata = HttpHelper.GetHtml(CmtUrl1,"application/json");
             var jc = JsonConvert.DeserializeObject<SHJson1>(htmldata);
 
-            num = jc.listData.cmt_num;
+            num = jc.listData.cmt_sum;
 
             round = num / 20;
             round++;
@@ -116,7 +124,7 @@ namespace CatcherPlus
         {
             if (currendRound >= round) return null;
 
-            List<Common.Cmt> SHCmts = new List<Common.Cmt>();
+            List<Common.Cmt> lSHCmts = new List<Common.Cmt>();
 
             CmtParm["page_no"] = page.ToString();
             string CmtUrl2 = "http://changyan.sohu.com/api/2/topic/comments?" + HttpHelper.arry2urlencoded(CmtParm);
@@ -133,17 +141,12 @@ namespace CatcherPlus
                 shcmt.location = cmt.ip_location;
                 shcmt.content = cmt.content;
 
+                lSHCmts.Add(shcmt);
                 SHCmts.Add(shcmt);
-                cmts.Add(shcmt);
             }
             currendRound++;
-            return SHCmts;
-        }
-
-        public List<Common.Cmt> GetAllCmts()
-        {
-            return cmts;
-
+            page++;
+            return lSHCmts;
         }
 
         public int GetNum()
@@ -158,6 +161,36 @@ namespace CatcherPlus
             long lTime = long.Parse(timeStamp + "0000");
             TimeSpan toNow = new TimeSpan(lTime);
             return dtStart.Add(toNow);
+        }
+
+        public void Run()
+        {
+            mw.State("正在抓取");
+            eh = new ExcelHelper(file);
+
+            mw.SetProgressBar(0, num);
+
+            var cmts = this.GetNextCmts();
+
+            while (cmts != null)
+            {
+                foreach (var cmt in cmts)
+                {
+                    mw.AddPVB(cmt);
+                    mw.AddProgressBar1();
+                }
+                cmts = this.GetNextCmts();
+            }
+            Thread.Sleep(1000);
+
+            foreach (var cmt in SHCmts)
+            {
+                eh.AddRow(cmt);
+                mw.AddProgressBar2();
+            }
+            eh.Save();
+            mw.State("完成");
+            MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

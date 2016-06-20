@@ -65,6 +65,7 @@ namespace WangYi
         private static Regex reproductKey = new Regex("\"productKey\"\\s*:\\s*\"([0-9a-fA-F]{32})\"");
         private static Regex redocId = new Regex("\"docId\"\\s*:\\s*\"([0-9a-zA-Z]*?)\"");
 
+        private string file;
         private string productKey;
         private string docId;
         //评论总数
@@ -77,27 +78,20 @@ namespace WangYi
         //private int currentPoint = 0;
         //总共需要抓取次数
         public int round { get; set; } = 0;
-
         private string NewsUrl;
-        //private WangYiData wyData;
-        //private WYCommentSimple[] WYCmts;
-        //private List<WYCommentSimple> WYCmts = new List<WYCommentSimple>();
+       
         private List<Common.Cmt> WYCmts = new List<Common.Cmt>();
+        private MainWin mw;
+        private ExcelHelper eh;
 
-        //private MainWin mw;
-
-        public WangYi(string Url)
+        public WangYi(string Url,string file,MainWin mw)
         {
             this.NewsUrl = Url;
-
-            //this.mw = mw;
+            this.file = file;
+            this.mw = mw;
             Init();
         }
 
-        public List<Common.Cmt> GetAllCmts()
-        {
-            return WYCmts;
-        }
 
         private string GetCmtUrl()
         {
@@ -179,63 +173,34 @@ namespace WangYi
 
             return lwys;
         }
-        /*
-        private bool Get(string NewsUrl)
+
+        public void Run()
         {
-            //First,Get news page
-            
+            eh = new ExcelHelper(file);
 
-            mw.SetProgressBar(0, this.num);
+            mw.SetProgressBar( 0, num );
 
-            var cmts = jc.comments;
-            
-            
-
-            for (int index = 0; index < round; ++index)
+            for (int i = 0; i < round; ++i)
             {
-                int i = currentGet;
+                var cmtlist = this.GetNextCmts();
 
-                cmtUrl = GetNextCmtUrl();
-                tmpData = HttpHelper.GetHtml(cmtUrl, "application/json");
-
-                jc = JsonConvert.DeserializeObject<WangYiData>(tmpData);
-                cmts = jc.comments;
-                foreach (var cmt in cmts)
+                foreach (var cmt in cmtlist)
                 {
-                    if (cmt.Value.buildLevel == 1)
-                    {
-                        WYCommentSimple wys = new WYCommentSimple();
-                        wys.against = cmt.Value.against;
-                        wys.against = cmt.Value.against;
-                        wys.anonymous = cmt.Value.anonymous;
-                        wys.buildLevel = cmt.Value.buildLevel;
-                        wys.content = cmt.Value.content;
-
-                        wys.createTime = cmt.Value.createTime;
-                        wys.favCount = cmt.Value.favCount;
-                        wys.location = cmt.Value.user.location;
-                        wys.nickname = cmt.Value.user.nickname;
-                        wys.vote = cmt.Value.vote;
-                        WYCmts.Add(wys);
-
-                        string[] str = new string[5];
-                        str[0] = wys.nickname;
-                        str[1] = wys.createTime;
-                        str[2] = wys.location;
-                        str[3] = wys.vote.ToString();
-                        str[4] = wys.content;
-
-                        //mw.AddPVB(str);
-                        mw.AddProgressBar();
-                        //UpdateUI?.Invoke(this, EventArgs.Empty);
-                        Console.WriteLine(cmt.Value.content);
-                    }
+                    mw.AddPVB(cmt);
+                    mw.AddProgressBar1();
                 }
             }
-            return true;
+
+            foreach (var cmt in WYCmts)
+            {
+                eh.AddRow(cmt);
+                mw.AddProgressBar2();
+            }
+
+            eh.Save();
+
+            mw.State("完成");
+            MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        */
-        delegate void SetPB(int min, int max);
-        delegate void UpdatePB();
     }
 }
