@@ -120,14 +120,6 @@ namespace CatcherPlus
             string htmldata = HttpHelper.GetHtml(cmturl, "application/json");
             var jc = JsonConvert.DeserializeObject<SinaJson>(htmldata);
 
-            //Console.WriteLine(jc.result.cmntlist.Count);
-            //if (jc.result.cmntlist.Count == 0) return null;
-
-            //List<SinaCmtSimple> lscs = new List<SinaCmtSimple>();
-            //SinaCmtSimple sss = new SinaCmtSimple();
-            //lscs.Add(sss);
-            //page++;
-
             if (jc.result.cmntlist.Count != 0)
             {
                 List<Common.Cmt> lscs = new List<Common.Cmt>();
@@ -159,8 +151,6 @@ namespace CatcherPlus
             Thread.Sleep(2000);
             this.eh = new ExcelHelper(file);
             mw.SetProgressBar(0, num);
-            //this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
-            
             var cmts = this.GetNextCmts();
             
             while (cmts != null)

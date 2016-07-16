@@ -22,12 +22,12 @@ namespace CatcherPlus
 
             var sitetypes = sitetype.Items;
             sitetypes.AddRange(new object[] {
-                "凤凰",
-                "搜狐",
-                "腾讯",
-                "网易",
-                "新浪"
-            });
+                                                                "凤凰",
+                                                                "搜狐",
+                                                                "腾讯",
+                                                                "网易",
+                                                                "新浪"
+                                                });
 
             //sitetypes.
             sitetype.SelectedIndex = 0;
@@ -56,7 +56,8 @@ namespace CatcherPlus
             if (InvokeRequired)
             {
                 BeginInvoke(new dState(State), f);
-            } else
+            }
+            else
             {
                 stateText.Text = s;
             }
@@ -99,7 +100,8 @@ namespace CatcherPlus
             if (InvokeRequired)
             {
                 BeginInvoke(new dAddPB1(AddProgressBar1));
-            } else
+            }
+            else
             {
                 if (progressBar1.Value >= progressBar1.Maximum)
                 { progressBar1.Maximum++; }
@@ -133,7 +135,6 @@ namespace CatcherPlus
             }
             else
             {
-                //int i = 0;
                 PreViewBox.BeginUpdate();
                 ListViewItem lvi = new ListViewItem();
                 lvi.Text = data.name;
@@ -146,92 +147,6 @@ namespace CatcherPlus
                 PreViewBox.EndUpdate();
             }
         }
-        /*
-        public void Startifeng()
-        {
-            this.CatchLocker = true;
-            try
-            {
-                ifeng fn = new ifeng(Url.Text);
-
-                this.BeginInvoke(new dState(State), s);
-                string URL = Url.Text;
-                string file = FileName.Text;
-                ExcelHelper eh = new ExcelHelper(file);
-                int num = fn.GetNum();
-
-
-                this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
-                var cmts = fn.GetNextCmts();
-
-                while (cmts != null)
-                {
-                    foreach (var cmt in cmts)
-                    {
-                        this.BeginInvoke(new dAddPVB(AddPVB), cmt);
-                        this.BeginInvoke(new dAddPB1(AddProgressBar1));
-                    }
-                    cmts = fn.GetNextCmts();
-                }
-
-                var allcmts = fn.GetAllCmts();
-                foreach (var cmt in allcmts)
-                {
-                    eh.AddRow(cmt);
-                    this.BeginInvoke(new dAddPB2(AddProgressBar2));
-                }
-                eh.Save();
-                this.BeginInvoke(new dState(State), f);
-                MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show("出错！错误原因：" + err.Message, "提示信息",
-                   MessageBoxButtons.OK, MessageBoxIcon.Information);
-                CatchLocker = false;
-            }
-            this.CatchLocker = false;
-        }*/
-        /*
-        public void StartSoHu()
-        {
-            this.CatchLocker = true;
-            try
-            {
-                SoHu sh = new SoHu(Url.Text, FileName.Text, this);
-                sh.Run();
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show("出错！错误原因：" + err.Message, "提示信息",
-                   MessageBoxButtons.OK, MessageBoxIcon.Information);
-                CatchLocker = false;
-            }
-            this.CatchLocker = false;
-        }*/
-        /*
-        public void StartSina()
-        {
-            CatchLocker = true;
-            try
-            {
-                Sina sina = new Sina(Url.Text, FileName.Text, this);
-                sina.Run();
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show("出错！错误原因：" + err.Message, "提示信息",
-                   MessageBoxButtons.OK, MessageBoxIcon.Information);
-                CatchLocker = false;
-            }
-
-            CatchLocker = false;
-
-            //return true;
-        }*/
-
         private void Start(object st)
         {
             CatchLocker = true;
@@ -241,7 +156,7 @@ namespace CatcherPlus
                 switch (st.ToString())
                 {
                     case "网易":
-                        var wy = new Common.CatcherWorker<WangYi.WangYi>(new WangYi.WangYi("Ss", "Ss", this));
+                        var wy = new Common.CatcherWorker<WangYi.WangYi>(new WangYi.WangYi(Url.Text, FileName.Text, this));
                         wy.Run();
                         break;
                     case "搜狐":
@@ -253,7 +168,7 @@ namespace CatcherPlus
                         sa.Run();
                         break;
                     case "腾讯":
-                        var qq = new Common.CatcherWorker<Sina>(new Sina(Url.Text, FileName.Text, this));
+                        var qq = new Common.CatcherWorker<Tencent>(new Tencent(Url.Text, FileName.Text, this));
                         qq.Run();
                         break;
                     case "凤凰":
@@ -264,87 +179,18 @@ namespace CatcherPlus
                         MessageBox.Show("未知类型", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         break;
 
+
                 }
             }
             catch (Exception err)
             {
                 MessageBox.Show("出错！错误原因：" + err.Message, "提示信息",
-                   MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
                 CatchLocker = false;
             }
-
-
             CatchLocker = false;
         }
-        /*
-        public void StartQQ()
-        {
-            this.CatchLocker = true;
-            try
-            {
-                Tencent qq = new Tencent(Url.Text,FileName.Text,this);
 
-                
-                
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show("出错！错误原因：" + err.Message, "提示信息",
-                   MessageBoxButtons.OK, MessageBoxIcon.Information);
-                CatchLocker = false;
-            }
-            this.CatchLocker = false;
-        }*/
-        /*
-        public void StartWY()
-        {
-            this.CatchLocker = true;
-            try
-            {
-                this.BeginInvoke(new dState(State), s);
-                string URL = Url.Text;
-                string file = FileName.Text;
-                WangYi.WangYi wy = new WangYi.WangYi(URL);
-                ExcelHelper eh = new ExcelHelper(file);
-
-                int num = wy.num;
-                int round = wy.round;
-
-                this.BeginInvoke(new dSetPB(SetProgressBar), new object[] { 0, num });
-                for (int i = 0; i < round; ++i)
-                {
-                    var cmtlist = wy.GetNextCmts();
-
-                    foreach (var cmt in cmtlist)
-                    {
-                        this.BeginInvoke(new dAddPVB(AddPVB), cmt);
-                        this.BeginInvoke(new dAddPB1(AddProgressBar1));
-                    }
-                }
-
-                var AllCmts = wy.GetAllCmts();
-
-                foreach (var cmt in AllCmts)
-                {
-                    eh.AddRow(cmt);
-                    this.BeginInvoke(new dAddPB2(AddProgressBar2));
-                }
-
-                eh.Save();
-
-                this.BeginInvoke(new dState(State), f);
-                MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
-            }
-            catch (Exception err)
-            {
-                MessageBox.Show("出错！错误原因：" + err.Message, "提示信息",
-                   MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.CatchLocker = false;
-            }
-            this.CatchLocker = false;
-        }
-        */
         private void clearUrl_Click(object sender, EventArgs e)
         {
             Url.Text = "";
@@ -362,7 +208,8 @@ namespace CatcherPlus
                 if (Url.Text == "")
                 {
                     MessageBox.Show("请输入地址", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }else
+                }
+                else
                 {
                     if (FileName.Text == "")
                     {
@@ -379,49 +226,18 @@ namespace CatcherPlus
                             var site = sitetype.SelectedItem.ToString();
                             Thread t = new Thread(new ParameterizedThreadStart(Start));
                             t.Start(site);
-                            /*
-                            switch (site)
-                            {
-                                case "网易":
-                                    Thread tWY = new Thread(StartWY);
-                                    tWY.Start();
-                                    break;
-                                case "搜狐":
-                                    Thread tSH = new Thread(StartSoHu);
-                                    tSH.Start();
-                                    break;
-                                case "新浪":
-                                    //Sina sa = new Sina("sss", "ss", this);
-                                    Thread tSA = new Thread(new ParameterizedThreadStart(Start));
-                                    tSA.Start(SiteType.Sina);
-                                    break;
-                                case "腾讯":
-                                    Thread tQQ = new Thread(StartQQ);
-                                    tQQ.Start();
-                                    break;
-                                case "凤凰":
-                                    Thread tFN = new Thread(Startifeng);
-                                    tFN.Start();
-                                    break;
-                                default:
-                                    MessageBox.Show("未知类型", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                                    break;
-                                    
-                            }*/
-                        }catch(Exception err)
-                        {
-                            MessageBox.Show("出现错误,错误信息:"+err.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
-                        //InitPreViewBox(SiteType.Sina);
-                        State("GetHtml...");
+                        catch (Exception err)
+                        {
+                            MessageBox.Show("出现错误,错误信息:" + err.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                 }
-            }else
+            }
+            else
             {
                 MessageBox.Show("当前正在执行任务,请稍后再试", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-           
-            //Console.WriteLine(jc.comments);
         }
 
         private void button1_Click(object sender, EventArgs e)
