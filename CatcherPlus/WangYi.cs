@@ -69,7 +69,7 @@ namespace WangYi
         private string productKey;
         private string docId;
         //评论总数
-        public int num { get; set; } = 0 ;
+        public int num { get; set; } = 0;
         //当前已获取到的评论总数
         private int currentGet = 0;
         //每次获取数量
@@ -79,12 +79,12 @@ namespace WangYi
         //总共需要抓取次数
         public int round { get; set; } = 0;
         private string NewsUrl;
-       
+
         private List<Common.Cmt> WYCmts = new List<Common.Cmt>();
         private MainWin mw;
         private ExcelHelper eh;
 
-        public WangYi(string Url,string file,MainWin mw)
+        public WangYi(string Url, string file, MainWin mw)
         {
             this.NewsUrl = Url;
             this.file = file;
@@ -161,7 +161,7 @@ namespace WangYi
                     wys.content = cmt.Value.content;
 
                     wys.date = cmt.Value.createTime;
-                    
+
                     wys.location = cmt.Value.user.location;
                     wys.name = cmt.Value.user.nickname;
                     wys.up = cmt.Value.vote.ToString();
@@ -178,7 +178,7 @@ namespace WangYi
         {
             eh = new ExcelHelper(file);
 
-            mw.SetProgressBar( 0, num );
+            mw.SetProgressBar(0, num);
 
             for (int i = 0; i < round; ++i)
             {

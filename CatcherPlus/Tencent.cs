@@ -46,7 +46,7 @@ namespace CatcherPlus
 
     public class QQCmtWithNode : Common.Cmt
     {
-        public List<Common.Cmt> replys = new List<Common.Cmt> ();
+        public List<Common.Cmt> replys = new List<Common.Cmt>();
     }
 
     public class Tencent
@@ -72,7 +72,7 @@ namespace CatcherPlus
         private MainWin mw;
         private ExcelHelper eh;
 
-        public Tencent(string Url,string file,MainWin mw)
+        public Tencent(string Url, string file, MainWin mw)
         {
             this.Url = Url;
             this.file = file;
@@ -114,7 +114,7 @@ namespace CatcherPlus
             this.hasnext = jc.data.hasnext;
             return true;
         }
-        
+
         private string GetParm()
         {
             string parm = "commentid=" + this.first + "&reqnum=" + this.reqnum.ToString();

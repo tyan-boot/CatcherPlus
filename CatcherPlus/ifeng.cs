@@ -40,7 +40,7 @@ namespace CatcherPlus
         private MainWin mw;
         private ExcelHelper eh;
 
-        public ifeng(string Url,string file,MainWin mw)
+        public ifeng(string Url, string file, MainWin mw)
         {
             this.Url = Url;
             this.file = file;
@@ -54,7 +54,7 @@ namespace CatcherPlus
 
         private void Init()
         {
-            string htmldata = HttpHelper.GetHtml(CmtUrl + HttpHelper.arry2urlencoded(FNParm),"application/json");
+            string htmldata = HttpHelper.GetHtml(CmtUrl + HttpHelper.arry2urlencoded(FNParm), "application/json");
             var jc = JsonConvert.DeserializeObject<FNJson>(htmldata);
             num = jc.count;
             round = num / 20;
@@ -111,7 +111,7 @@ namespace CatcherPlus
             mw.State("正在抓取");
             eh = new ExcelHelper(file);
 
-            mw.SetProgressBar( 0, num );
+            mw.SetProgressBar(0, num);
 
             var cmts = this.GetNextCmts();
 

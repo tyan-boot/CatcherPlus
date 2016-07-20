@@ -16,7 +16,7 @@ namespace CatcherPlus
 {
     class ExcelHelper
     {
-        
+
         private string FileName;
 
         private XSSFWorkbook wbook = new XSSFWorkbook();
@@ -52,7 +52,7 @@ namespace CatcherPlus
             row.CreateCell(2).SetCellValue(rowData.location);
             row.CreateCell(3).SetCellValue(rowData.up);
             row.CreateCell(4).SetCellValue(rowData.content);
-            
+
             currentRow++;
             /*
             foreach (var str in rowdata)
@@ -81,7 +81,7 @@ namespace CatcherPlus
         public void SetTitle(List<string> title)
         {
             row = sheet1.CreateRow(0);
-            
+
             int col = 0;
             foreach (var str in title)
             {
@@ -99,7 +99,8 @@ namespace CatcherPlus
                 FileStream stream = File.OpenWrite(FileName);
                 wbook.Write(stream);
                 stream.Close();
-            }catch (Exception err)
+            }
+            catch (Exception err)
             {
                 MessageBox.Show("导出Excel出错！错误原因：" + err.Message, "提示信息",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);

@@ -33,6 +33,7 @@
             this.clearUrl = new System.Windows.Forms.Button();
             this.start = new System.Windows.Forms.Button();
             this.Setting = new System.Windows.Forms.GroupBox();
+            this.sitetype = new System.Windows.Forms.ComboBox();
             this.button1 = new System.Windows.Forms.Button();
             this.clearFileName = new System.Windows.Forms.Button();
             this.FileName = new System.Windows.Forms.TextBox();
@@ -45,7 +46,6 @@
             this.label3 = new System.Windows.Forms.Label();
             this.progressBar2 = new System.Windows.Forms.ProgressBar();
             this.stateText = new System.Windows.Forms.Label();
-            this.sitetype = new System.Windows.Forms.ComboBox();
             this.Setting.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -111,6 +111,16 @@
             this.Setting.TabIndex = 0;
             this.Setting.TabStop = false;
             this.Setting.Text = "相关设置";
+            // 
+            // sitetype
+            // 
+            this.sitetype.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.sitetype.FormattingEnabled = true;
+            this.sitetype.Location = new System.Drawing.Point(472, 36);
+            this.sitetype.Name = "sitetype";
+            this.sitetype.Size = new System.Drawing.Size(80, 20);
+            this.sitetype.Sorted = true;
+            this.sitetype.TabIndex = 8;
             // 
             // button1
             // 
@@ -227,16 +237,6 @@
             this.stateText.Size = new System.Drawing.Size(29, 12);
             this.stateText.TabIndex = 4;
             this.stateText.Text = "空闲";
-            // 
-            // sitetype
-            // 
-            this.sitetype.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.sitetype.FormattingEnabled = true;
-            this.sitetype.Location = new System.Drawing.Point(472, 36);
-            this.sitetype.Name = "sitetype";
-            this.sitetype.Size = new System.Drawing.Size(80, 20);
-            this.sitetype.Sorted = true;
-            this.sitetype.TabIndex = 8;
             // 
             // MainWin
             // 

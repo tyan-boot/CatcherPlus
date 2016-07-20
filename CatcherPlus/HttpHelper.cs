@@ -19,7 +19,8 @@ namespace CatcherPlus
             if (num != 0)
             {
                 PostField += "&" + key + "=" + content;
-            }else
+            }
+            else
             {
                 PostField += key + "=" + content;
                 num++;
@@ -98,10 +99,10 @@ namespace CatcherPlus
                 throw;
                 //return null;
             }
-            
+
         }
 
-        public static string arry2urlencoded(Dictionary<string,int> data)
+        public static string arry2urlencoded(Dictionary<string, int> data)
         {
             string u = "";
             foreach (var d in data)

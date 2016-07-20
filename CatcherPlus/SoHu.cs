@@ -62,13 +62,13 @@ namespace CatcherPlus
         private MainWin mw;
         private ExcelHelper eh = null;
 
-        public SoHu(string Url,string file,MainWin mw)
+        public SoHu(string Url, string file, MainWin mw)
         {
             this.Url = Url;
             this.file = file;
             this.mw = mw;
 
-            SHParm.Add("appid","");
+            SHParm.Add("appid", "");
             SHParm.Add("client_id", "");
             SHParm.Add("topicurl", "");
             SHParm.Add("topicsid", "");
@@ -85,28 +85,28 @@ namespace CatcherPlus
         {
             string htmldata = HttpHelper.GetHtml(this.Url, "application/text");
             Match mEId = reEId.Match(htmldata);
-            if(mEId.Success)
+            if (mEId.Success)
             {
-                EId = mEId.Groups[0].Value; 
+                EId = mEId.Groups[0].Value;
             }
 
             string QUrl = "http://pinglun.sohu.com/s" + EId + ".html";
-            htmldata = HttpHelper.GetHtml(QUrl,"application/text");
+            htmldata = HttpHelper.GetHtml(QUrl, "application/text");
             Match mIDs = reIDs.Match(htmldata);
             Match mQuan = reQuan.Match(htmldata);
-            
+
             appid = mIDs.Groups[2].Value;
             topicsid = mIDs.Groups[3].Value;
-            
+
             SHParm["appid"] = appid;
             SHParm["client_id"] = appid;
             SHParm["topicurl"] = mQuan.Groups[0].Value;
             SHParm["topicsid"] = topicsid;
-            
+
             string parm = HttpHelper.arry2urlencoded(SHParm);
             string CmtUrl1 = "http://changyan.sohu.com/node/html?" + parm;
 
-            htmldata = HttpHelper.GetHtml(CmtUrl1,"application/json");
+            htmldata = HttpHelper.GetHtml(CmtUrl1, "application/json");
             var jc = JsonConvert.DeserializeObject<SHJson1>(htmldata);
 
             num = jc.listData.cmt_sum;
@@ -129,7 +129,7 @@ namespace CatcherPlus
             CmtParm["page_no"] = page.ToString();
             string CmtUrl2 = "http://changyan.sohu.com/api/2/topic/comments?" + HttpHelper.arry2urlencoded(CmtParm);
 
-            string htmldata = HttpHelper.GetHtml(CmtUrl2,"application/json");
+            string htmldata = HttpHelper.GetHtml(CmtUrl2, "application/json");
             var jc = JsonConvert.DeserializeObject<SHJson2>(htmldata);
 
             foreach (var cmt in jc.comments)

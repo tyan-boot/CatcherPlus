@@ -66,7 +66,7 @@ namespace CatcherPlus
         private MainWin mw;
         private ExcelHelper eh;
 
-        public Sina(string Url,string file,MainWin mw)
+        public Sina(string Url, string file, MainWin mw)
         {
             this.Url = Url;
             this.mw = mw;
@@ -101,7 +101,7 @@ namespace CatcherPlus
             //test
             string cmturl = BaseCmtUrl + HttpHelper.arry2urlencoded(SinaParm);
             //Console.WriteLine(cmturl);
-            htmldata = HttpHelper.GetHtml(cmturl,"application/json");
+            htmldata = HttpHelper.GetHtml(cmturl, "application/json");
 
             var jc = JsonConvert.DeserializeObject<SinaJson>(htmldata);
 
@@ -152,7 +152,7 @@ namespace CatcherPlus
             this.eh = new ExcelHelper(file);
             mw.SetProgressBar(0, num);
             var cmts = this.GetNextCmts();
-            
+
             while (cmts != null)
             {
                 foreach (var cmt in cmts)
@@ -167,7 +167,7 @@ namespace CatcherPlus
                 //Thread.Sleep(500);
             }
 
-            
+
             foreach (var cmt in SinaCmts)
             {
                 eh.AddRow(cmt);
@@ -177,7 +177,7 @@ namespace CatcherPlus
             eh.Save();
             mw.State("完成");
             MessageBox.Show("抓取完成", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            
+
             return true;
         }
 
